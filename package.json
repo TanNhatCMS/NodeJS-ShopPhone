@@ -2,10 +2,16 @@
   "name": "ShopPhone",
   "version": "0.0.5",
   "private": true,
+  "main": "./bin/www",
   "scripts": {
-    "build": "node app.js",
     "start": "node ./bin/www",
-    "dev": "nodemon"
+    "dev": "nodemon",
+    "pm2": "pm2",
+    "start:staging": "pm2 start",
+    "monitor": "pm2 monit",
+    "reload-env": "pm2 reload --update-env ecosystem.config.js",
+    "stop": "pm2 stop ecosystem.config.js",
+    "delete": "pm2 delete ecosystem.config.js"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
@@ -21,6 +27,7 @@
     "nodemon": "^3.1.4",
     "pg": "^8.12.0",
     "pg-promise": "^11.8.0",
+    "pm2": "^5.4.1",
     "redis": "^4.6.14"
   }
 }
