@@ -5,7 +5,7 @@ const dbName = process.env.MONGODB_DATABASE;
 
 class MongoDB {
     static async connect() {
-        const client = await MongoClient.connect(url, { useNewUrlParser: true, useUnifiedTopology: true });
+        const client = await MongoClient.connect(url);
         return client.db(dbName);
     }
 
@@ -80,12 +80,9 @@ class MongoDB {
                 success: false
             });
         }
-
         const db = await MongoDB.connect();
-
         try {
             const product = await db.collection('products').findOne({ _id: new ObjectId(id) });
-
             if (!product) {
                 return cb({
                     status: 404,
@@ -93,9 +90,7 @@ class MongoDB {
                     success: false
                 });
             }
-
             const result = await db.collection('products').deleteOne({ _id: new ObjectId(id) });
-
             if (result.deletedCount === 0) {
                 return cb({
                     status: 500,
@@ -103,13 +98,11 @@ class MongoDB {
                     success: false
                 });
             }
-
             return cb(null, {
                 status: 200,
                 message: 'Product deleted',
                 success: true
             });
-
         } catch (error) {
             console.error(error);
             return cb({
@@ -119,7 +112,6 @@ class MongoDB {
             });
         }
     }
-
     async updateProduct(id, updatedProduct, cb) {
         if (!id || id.length !== 24) {
             return cb({
@@ -138,5 +130,4 @@ class MongoDB {
         }
     }
 }
-
 module.exports = MongoDB;
