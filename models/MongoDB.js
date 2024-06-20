@@ -12,7 +12,7 @@ class MongoDB {
     async save(product, cb) {
         const db = await MongoDB.connect();
         product._id = new ObjectId();
-        db.collection('products').insertOne(product, cb);
+        await db.collection('products').insertOne(product, cb);
     }
 
     async fetchAll(cb) {
@@ -29,12 +29,12 @@ class MongoDB {
 
     async deleteById(id, cb) {
         const db = await MongoDB.connect();
-        db.collection('products').deleteOne({ _id: new ObjectId(id) }, cb);
+        await db.collection('products').deleteOne({_id: new ObjectId(id)}, cb);
     }
 
     async updateProduct(id, updatedProduct, cb) {
         const db = await MongoDB.connect();
-        db.collection('products').updateOne({ _id: new ObjectId(id) }, { $set: updatedProduct }, cb);
+        await db.collection('products').updateOne({_id: new ObjectId(id)}, {$set: updatedProduct}, cb);
     }
 }
 
