@@ -1,0 +1,15 @@
+{
+  "watch": [
+    "controllers",
+    "models",
+    "views",
+    "routes",
+    "app.js",
+    "bin/www"
+  ],
+  "ext": "js,json,ejs",
+  "ignore": [
+    "node_modules"
+  ],
+  "exec": "node --inspect ./bin/www"
+}
