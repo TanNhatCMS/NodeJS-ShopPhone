@@ -5,7 +5,7 @@ const dbName = process.env.MONGODB_DATABASE;
 
 class MongoDB {
     static async connect() {
-        const client = await MongoClient.connect(url, { useUnifiedTopology: true });
+        const client = await MongoClient.connect(url);
         return client.db(dbName);
     }
 

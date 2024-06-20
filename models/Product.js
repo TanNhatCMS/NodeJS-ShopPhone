@@ -1,30 +1,28 @@
-const JsonDB = require('./JsonDB');
-const MySQLDB = require('./MySQLDB');
-const MongoDB = require('./MongoDB');
-const PostgresDB = require('./PostgresDB');
-const RedisDB = require('./RedisDB');
 
-const dbType = process.env.DB_TYPE || 'json';
+class Product {
+    constructor(db) {
+        this.db = db;
+    }
 
-let db;
+    save(product, cb) {
+        this.db.save(product, cb);
+    }
 
-switch (dbType) {
-    case 'mysql':
-        db = new MySQLDB();
-        break;
-    case 'mongodb':
-        db = new MongoDB();
-        break;
-    case 'postgresql':
-        db = new PostgresDB();
-        break;
-    case 'redis':
-        db = new RedisDB();
-        break;
-    case 'json':
-    default:
-        db = new JsonDB();
-        break;
+    fetchAll(cb) {
+        this.db.fetchAll(cb);
+    }
+
+    findById(id, cb) {
+        this.db.findById(id, cb);
+    }
+
+    deleteById(id, cb) {
+        this.db.deleteById(id, cb);
+    }
+
+    updateProduct(id, updatedProduct, cb) {
+        this.db.updateProduct(id, updatedProduct, cb);
+    }
 }
 
-module.exports = db;
+module.exports = Product;
