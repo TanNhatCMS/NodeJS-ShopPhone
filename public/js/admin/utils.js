@@ -33,10 +33,11 @@ export class Helper {
 }
 
 export class CustomModal {
-  static alertSuccess(message) {
+  static alertSuccess(title, message) {
     return Swal.fire({
       icon: 'success',
-      title: message,
+      title: title,
+      text: message,
       showConfirmButton: false,
       timer: 1500,
     });
@@ -51,6 +52,16 @@ export class CustomModal {
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
       confirmButtonText: 'Xác nhận',
+    });
+  }
+
+  static alertError(title,message) {
+    return Swal.fire({
+      icon: 'error',
+      title: title,
+      text: message,
+      showConfirmButton: false,
+      timer: 1500,
     });
   }
 }

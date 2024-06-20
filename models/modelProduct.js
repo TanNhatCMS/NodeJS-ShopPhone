@@ -1,5 +1,5 @@
 
-class Product {
+class ModelProduct {
     constructor(db) {
         this.db = db;
     }
@@ -25,4 +25,4 @@ class Product {
     }
 }
 
-module.exports = Product;
+module.exports = ModelProduct;

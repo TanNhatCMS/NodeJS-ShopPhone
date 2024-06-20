@@ -1,5 +1,5 @@
 # NodeJS-ShopPhone
-# Product Management System
+# ProductController Management System
 
 This project is a product management system that supports multiple database types: JSON file, MySQL, MongoDB, PostgreSQL, and Redis. This README provides instructions on how to configure and run the project.
 

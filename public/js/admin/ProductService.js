@@ -2,27 +2,42 @@ export class Services {
   async fetchData(endpoint, method, data = null) {
     try {
       const res = await axios({
-        url: `http://localhost:3000/${endpoint}`,
+        url: `http://localhost:3000/api/${endpoint}`,
         method,
         data,
       });
       return res.data;
     } catch (error) {
-        console.error(error);
+      if (error.response && error.response.status === 404) {
+        // Return the custom JSON object for 404 errors
+        return {
+          status: 404,
+          message: 'Product not found',
+          success: false,
+          data: error.response.data,  // Include the response data from the server if available
+        };
+      }
+      // For other errors, you can handle them as needed
+      console.error(error);
+      return {
+        status: error.response ? error.response.status : 500,
+        message: error.message,
+        success: false,
+        data: error.response ? error.response.data : null,  // Include the response data from the server if available
+      };
     }
   }
 
   async addProduct(data) {
-    await this.fetchData('admin/add-product', 'POST', data);
+    return this.fetchData('Products', 'POST', data);
   }
 
   async getProducts() {
     return this.fetchData('Products', 'GET');
   }
 
-
   async deleteProduct(id) {
-    await this.fetchData(`admin/Product/${id}`, 'DELETE');
+    return this.fetchData(`Products/${id}`, 'DELETE');
   }
 
   async getProductById(id) {
@@ -30,6 +45,6 @@ export class Services {
   }
 
   async updateProduct(data) {
-    await this.fetchData(`admin/Product/${data.id}`, 'PUT', data);
+    return this.fetchData(`Products/${data.id}`, 'PUT', data);
   }
 }

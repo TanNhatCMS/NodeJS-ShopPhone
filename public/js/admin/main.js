@@ -1,25 +1,26 @@
 const getEle = (id) => document.getElementById(id);
 const resetForm = (formId) => getEle(formId).reset();
 
-import { CustomModal, Helper } from './utils.js';
-import { Services } from './ProductService.js';
-import { Validator } from './validator.js';
-import { Product } from './product.js';
+import {CustomModal, Helper} from './utils.js';
+import {Services} from './ProductService.js';
+import {Validator} from './validator.js';
+import {Product} from './product.js';
+
 const helper = new Helper();
 const service = new Services();
 const validator = new Validator();
 
 const renderList = async () => {
-  try {
-    let data;
-    await service.getProducts().then(
-        (res) => (data = res.products)
-    );
-    let content = '';
-    data.map((ele, index) => {
-        content += `
+    try {
+        let data;
+        await service.getProducts().then(
+            (res) => {
+                data = res.products;
+                let content = '';
+                data.map((ele, index) => {
+                    content += `
         <tr>
-            <td>${index+1}</td>
+            <td>${index + 1}</td>
             <td><strong>${ele.name}</strong></td>
             <td>${ele.price}</td>
             <td style="text-align: center"><img src=${ele.img} alt="phone-img" width="150" height="150"></td>
@@ -33,85 +34,94 @@ const renderList = async () => {
                 </button>
             </td>
         </tr>`;
-    });
-    getEle('tablePhone').innerHTML = content;
-  } catch (error) {
-    console.error(error);
-  }
+                });
+                getEle('tablePhone').innerHTML = content;
+            }
+        );
+
+
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 window.onload = async () => {
-  try {
-    await renderList();
-  } catch (error) {
-    console.error(error);
-  }
+    try {
+        await renderList();
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 getEle('addPhoneForm').onclick = () => {
-  resetForm('formPhone');
-  helper.clearTextBoxes();
-  getEle('btnUpdate').style.display = 'none';
-  getEle('btnAddPhone').style.display = 'inline-block';
+    resetForm('formPhone');
+    helper.clearTextBoxes();
+    getEle('btnUpdate').style.display = 'none';
+    getEle('btnAddPhone').style.display = 'inline-block';
 };
 
 getEle('btnAddPhone').onclick = async () => {
-  try {
-    let data;
-    await service.getProducts().then(
-        (res) => (data = res.products)
-    );
-    if (!validator.isValid(data)) return;
-    const inputs = helper.getInputValues();
-    const product = new Product('', ...inputs);
-    await service.addProduct(product);
-    await renderList();
-    CustomModal.alertSuccess('Thêm sản phẩm thành công');
-    $('#exampleModal').modal('hide');
-  } catch (error) {
-    console.error(error);
-  }
+    try {
+        const res = await service.getProducts();
+        if (!validator.isValid(res.products)) return;
+        const inputs = helper.getInputValues();
+        const product = new Product('', ...inputs);
+        delete product.id;
+        const req = await service.addProduct(product);
+        if(req.success){
+            await renderList();
+            CustomModal.alertSuccess('Thêm sản phẩm thành công');
+            $('#exampleModal').modal('hide');
+        }else {
+            CustomModal.alertError('Thêm sản phẩm thất bại',  req.message);
+        }
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 window.btnDelete = async (id) => {
-  try {
-    const res = await CustomModal.alertDelete(`Sản phẩm này sẽ bị xóa, bạn không thể hoàn tác hành động này`);
-    if (res.isConfirmed) {
-      await service.deleteProduct(id);
-      await renderList();
-      CustomModal.alertSuccess('Xóa sản phẩm thành công');
+    try {
+        const req = await CustomModal.alertDelete(`Sản phẩm này sẽ bị xóa, bạn không thể hoàn tác hành động này`);
+        if (req.isConfirmed) {
+            const res = await service.deleteProduct(id);
+            if(res.success){
+                await renderList();
+                CustomModal.alertSuccess('Xóa sản phẩm thành công');
+            }else {
+                CustomModal.alertError('Xóa sản phẩm thất bại', res.message);
+            }
+        }
+    } catch (error) {
+        console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
 };
 
 window.btnEdit = async (id) => {
-  helper.clearTextBoxes();
-  try {
-    getEle('btnUpdate').style.display = 'inline-block';
-    getEle('btnAddPhone').style.display = 'none';
-    let data;
-    await service.getProductById(id).then(
-        (res) => (data = res.product)
-    );
-    delete data.id;
-    const arrObjValue = Object.values(data);
-    helper.fillInputs(arrObjValue);
-    getEle('btnUpdate').onclick = async () => {
-      let data;
-      await service.getProducts().then(
-          (res) => (data = res.products)
-      );
-      if (!validator.isValid(data, true)) return;
-      const inputs = helper.getInputValues();
-      const product = new Product(id, ...inputs);
-      await service.updateProduct(product);
-      await renderList();
-      CustomModal.alertSuccess('Cập nhật sản phẩm thành công');
-      $('#exampleModal').modal('hide');
-    };
-  } catch (error) {
-    console.error(error);
-  }
+    helper.clearTextBoxes();
+    try {
+        getEle('btnUpdate').style.display = 'inline-block';
+        getEle('btnAddPhone').style.display = 'none';
+        const res = await service.getProductById(id);
+        const data = res.product;
+        delete data.id;
+        const arrObjValue = Object.values(data);
+        helper.fillInputs(arrObjValue);
+        getEle('btnUpdate').onclick = async () => {
+            const res = await service.getProducts();
+            if (!validator.isValid( res.products, true)) return;
+            const inputs = helper.getInputValues();
+            const product = new Product(id, ...inputs);
+            const req = await service.updateProduct(product);
+            if(req.success){
+                await renderList();
+                CustomModal.alertSuccess('Cập nhật sản phẩm thành công');
+                $('#exampleModal').modal('hide');
+            }else{
+                CustomModal.alertError('Cập nhật sản phẩm thất bại', req.message);
+            }
+        };
+    } catch (error) {
+        console.error(error);
+    }
 };

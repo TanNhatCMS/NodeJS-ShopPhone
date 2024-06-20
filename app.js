@@ -7,6 +7,7 @@ const bodyParser = require('body-parser')
 const indexRouter = require('./routes/index');
 const adminRouter = require('./routes/admin');
 const shopRouter = require('./routes/shop');
+const apiRouter = require('./routes/api');
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
      res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
      next()
 })
+app.use('/api', apiRouter);
 app.use('/admin', adminRouter);
 app.use('/shop', shopRouter);
 // catch 404 and forward to error handler
