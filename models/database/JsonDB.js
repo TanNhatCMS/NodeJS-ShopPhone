@@ -5,58 +5,142 @@ const p = path.join(path.dirname(process.mainModule.filename), '../database', 'P
 const readFileContent = (cb) => {
     fs.readFile(p, (err, fileContent) => {
         if (err) {
-            return cb([]);
+            return cb(null, []);
         }
         try {
             fileContent = JSON.parse(fileContent);
         } catch (err) {
-            return cb([]);
+            return cb(null, []);
         }
-        cb(fileContent);
+        cb(null, fileContent);
     });
 };
 
 const writeFileContent = (data, cb) => {
     fs.writeFile(p, JSON.stringify(data, null, 2), (err) => {
-        cb(err);
+        if (err) {
+            return cb(err);
+        }
+        cb(null);
     });
 };
 
 class JsonDB {
     save(product, cb) {
         product.id = Date.now().toString(36) + Math.random().toString(36).substring(2, 9);
-        readFileContent(products => {
+        readFileContent((err, products) => {
+            if (err) {
+                return cb(err);
+            }
             products.push(product);
-            writeFileContent(products, cb);
+            writeFileContent(products, (err) => {
+                if (err) {
+                    return cb(err);
+                }
+                cb(null, { insertedId: product.id });
+            });
         });
     }
 
     fetchAll(cb) {
-        readFileContent(cb);
+        readFileContent((err, products) => {
+            if (err) {
+                return cb(err);
+            }
+            cb(null, products);
+        });
     }
 
     findById(id, cb) {
-        readFileContent(products => {
+        if (!id || id.length < 1) {
+            return cb({
+                status: 400,
+                message: 'Invalid product ID',
+                success: false
+            });
+        }
+        readFileContent((err, products) => {
+            if (err) {
+                return cb(err);
+            }
             const product = products.find(p => p.id === id);
-            cb(product);
+            if (!product) {
+                return cb({
+                    status: 404,
+                    message: 'Product not found',
+                    success: false
+                });
+            }
+            cb(null, {
+                status: 200,
+                product: product,
+                message: 'Product found',
+                success: true
+            });
         });
     }
 
     deleteById(id, cb) {
-        readFileContent(products => {
+        if (!id || id.length < 1) {
+            return cb({
+                status: 400,
+                message: 'Invalid product ID',
+                success: false
+            });
+        }
+        readFileContent((err, products) => {
+            if (err) {
+                return cb(err);
+            }
             const updatedProducts = products.filter(p => p.id !== id);
-            writeFileContent(updatedProducts, cb);
+            writeFileContent(updatedProducts, (err) => {
+                if (err) {
+                    return cb({
+                        status: 500,
+                        message: 'Failed to delete product',
+                        success: false
+                    });
+                }
+                cb(null, {
+                    status: 200,
+                    message: 'Product deleted',
+                    success: true
+                });
+            });
         });
     }
 
     updateProduct(id, updatedProduct, cb) {
-        readFileContent(products => {
+        if (!id || id.length < 1) {
+            return cb({
+                status: 400,
+                message: 'Invalid product ID',
+                success: false
+            });
+        }
+        readFileContent((err, products) => {
+            if (err) {
+                return cb(err);
+            }
             const productIndex = products.findIndex(p => p.id === id);
             if (productIndex === -1) {
-                return cb('Product not found');
+                return cb({
+                    status: 404,
+                    message: 'Product not found',
+                    success: false
+                });
             }
             products[productIndex] = { ...products[productIndex], ...updatedProduct };
-            writeFileContent(products, cb);
+            writeFileContent(products, (err) => {
+                if (err) {
+                    return cb(err);
+                }
+                cb(null, {
+                    status: 200,
+                    message: 'Product updated',
+                    success: true
+                });
+            });
         });
     }
 }
