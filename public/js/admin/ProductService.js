@@ -2,7 +2,7 @@ export class Services {
   async fetchData(endpoint, method, data = null) {
     try {
       const res = await axios({
-        url: `http://localhost:3000/api/${endpoint}`,
+        url: `/api/${endpoint}`,
         method,
         data,
       });
